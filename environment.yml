@@ -1,0 +1,10 @@
+name: ds-exercises
+dependencies:
+
+python=3.11
+
+jupyterlab
+
+pandas
+
+numpy
