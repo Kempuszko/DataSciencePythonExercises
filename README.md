@@ -3,6 +3,11 @@
 Materiały do kursu dla studentów informatyki: **15 laboratoriów** z analizy danych i data science,
 z naciskiem na dobre praktyki inżynierskie (testy, Git, reprodukowalność) i **odpowiedzialną pracę z asystentem AI** (Copilot).
 
+## Zanim zaczniesz: konto GitHub
+
+- Nie masz konta? → [`docs/01_zakladanie_konta_github.pdf`](docs/01_zakladanie_konta_github.pdf)
+- Masz konto, chcesz przygotować fork, Git i środowisko → [`docs/02_przygotowanie_konta_i_srodowiska.pdf`](docs/02_przygotowanie_konta_i_srodowiska.pdf)
+
 ## Szybki start
 
 ```bash
