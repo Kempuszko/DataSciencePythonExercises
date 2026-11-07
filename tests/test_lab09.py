@@ -1,41 +1,56 @@
 import numpy as np
-from loader import load
+import pandas as pd
+from loader import DATA, load
 
 m = load("lab09")
-rng = np.random.default_rng(1)
-A = rng.normal(10, 2, 80)
-B = rng.normal(11, 2, 90)
+rng = np.random.default_rng(0)
+X = rng.normal(size=(200, 3))
+y = 4.0 + X @ np.array([1.5, -2.0, 0.5]) + rng.normal(0, 0.1, 200)
+YT = [1, 1, 1, 0, 0, 0, 0, 1]
+YP = [1, 0, 1, 0, 1, 0, 0, 1]
 
 
-def test_bootstrap_ci_contains_mean_and_deterministic():
-    lo, hi = m.bootstrap_ci(A, n_boot=1000, seed=3)
-    assert lo < A.mean() < hi and 0 < hi - lo < 2
-    assert m.bootstrap_ci(A, n_boot=1000, seed=3) == (lo, hi)
+def test_a_split_sizes_and_disjoint():
+    Xtr, Xte, ytr, yte = m.train_test_split_manual(X, y, 0.25, seed=1)
+    assert len(Xte) == 50 and len(Xtr) == 150 and len(ytr) == 150 and len(yte) == 50
+    rows = {tuple(r) for r in Xtr} & {tuple(r) for r in Xte}
+    assert not rows
+    a = m.train_test_split_manual(X, y, 0.25, seed=1)[1]
+    assert np.array_equal(a, Xte)
 
 
-def test_bootstrap_ci_other_stat():
-    lo, hi = m.bootstrap_ci(A, stat=np.median, n_boot=500, seed=0)
-    assert lo < np.median(A) < hi
+def test_a_fit_linear_recovers_weights():
+    w = m.fit_linear(X, y)
+    assert np.allclose(w, [4.0, 1.5, -2.0, 0.5], atol=0.05)
 
 
-def test_welch_t():
-    expected = (A.mean() - B.mean()) / np.sqrt(A.var(ddof=1) / 80 + B.var(ddof=1) / 90)
-    assert abs(m.welch_t(A, B) - expected) < 1e-9
-    assert m.welch_t(A, B) < 0
+def test_a_predict_and_r2():
+    w = m.fit_linear(X, y)
+    r2 = m.r2_score_manual(y, m.predict_linear(w, X))
+    assert r2 > 0.99
+    assert abs(m.r2_score_manual([1, 2, 3], [1, 2, 3]) - 1) < 1e-12
+    assert abs(m.r2_score_manual([1, 2, 3], [2, 2, 2])) < 1e-12
 
 
-def test_cohens_d():
-    d = m.cohens_d(B, A)
-    assert 0.2 < d < 1.0
-    assert abs(m.cohens_d(A, B) + d) < 1e-12
+def test_b_confusion_counts():
+    assert m.confusion_counts(YT, YP) == {"tp": 3, "fp": 1, "tn": 3, "fn": 1}
 
 
-def test_permutation_test_detects_difference():
-    assert m.permutation_test(A, B, n_perm=2000, seed=0) < 0.05
-    same = rng.normal(0, 1, 60)
-    assert m.permutation_test(same, same + rng.normal(0, 1e-3, 60), n_perm=500, seed=0) > 0.5
+def test_b_prf():
+    p, r, f = m.precision_recall_f1(YT, YP)
+    assert abs(p - 0.75) < 1e-9 and abs(r - 0.75) < 1e-9 and abs(f - 0.75) < 1e-9
 
 
-def test_permutation_p_in_range():
-    p = m.permutation_test([1, 2, 3], [1, 2, 3], n_perm=200, seed=0)
-    assert 0 < p <= 1
+def test_b_prf_zero_division():
+    assert m.precision_recall_f1([0, 0], [0, 0]) == (0.0, 0.0, 0.0)
+
+
+def test_b_kfold():
+    folds = m.kfold_indices(23, 5, seed=1)
+    assert len(folds) == 5
+    all_test = np.concatenate([te for _, te in folds])
+    assert sorted(all_test.tolist()) == list(range(23))
+    for tr, te in folds:
+        assert not set(tr) & set(te) and len(tr) + len(te) == 23
+    sizes = sorted(len(te) for _, te in folds)
+    assert sizes[-1] - sizes[0] <= 1

@@ -1,44 +1,47 @@
+import numpy as np
 import pandas as pd
 from loader import DATA, load
 
 m = load("lab05")
-sales = pd.read_csv(DATA / "sales.csv", parse_dates=["date"])
-cust = pd.read_csv(DATA / "customers.csv", parse_dates=["signup_date"])
+raw = pd.read_csv(DATA / "sales_dirty.csv")
 
 
-def test_revenue_pivot():
-    p = m.revenue_pivot(sales)
-    assert set(p.index) == {"electronics", "furniture", "office"}
-    assert abs(p.to_numpy().sum() - sales["amount"].sum()) < 1e-4
-    assert not p.isna().any().any()
+def test_a_parse_mixed_dates():
+    s = pd.Series(["2024-05-23", "23/05/2024", "01/02/2024"])
+    r = m.parse_mixed_dates(s)
+    assert r.tolist() == [pd.Timestamp("2024-05-23"), pd.Timestamp("2024-05-23"), pd.Timestamp("2024-02-01")]
 
 
-def test_add_customer_info():
-    r = m.add_customer_info(sales, cust)
-    assert len(r) == len(sales)
-    assert list(r["order_id"]) == list(sales["order_id"])
-    assert "segment" in r.columns and "country_x" not in r.columns and "country_y" not in r.columns
-    assert r["segment"].notna().all()
+def test_a_clean_does_not_mutate_input():
+    before = raw.copy()
+    m.clean_sales(raw)
+    pd.testing.assert_frame_equal(raw, before)
 
 
-def test_add_customer_info_keeps_unmatched():
-    o = sales.head(3).copy()
-    o.loc[o.index[0], "customer_id"] = -1
-    r = m.add_customer_info(o, cust)
-    assert len(r) == 3 and pd.isna(r["segment"].iloc[0])
+def test_a_clean_sales_rules():
+    c = m.clean_sales(raw)
+    assert not c.duplicated().any()
+    assert c["order_id"].is_unique and c["order_id"].is_monotonic_increasing
+    assert set(c["country"]) <= {"PL", "DE", "CZ", "SK", "FR", "UK"}
+    assert c["amount"].dtype.kind == "f" and (c["amount"] > 0).all() and c["amount"].notna().all()
+    assert c["quantity"].dtype.kind == "i" and c["quantity"].notna().all()
+    assert str(c["date"].dtype).startswith("datetime64") and c["date"].notna().all()
+    assert list(c.index) == list(range(len(c)))
 
 
-def test_monthly_growth():
-    g = m.monthly_growth(sales)
-    monthly = sales.groupby(sales["date"].dt.strftime("%Y-%m"))["amount"].sum().sort_index()
-    assert len(g) == len(monthly) - 1 and g.index[0] == monthly.index[1]
-    assert abs(g.iloc[0] - (monthly.iloc[1] / monthly.iloc[0] - 1)) < 1e-9
+def test_a_clean_sales_keeps_good_rows():
+    c = m.clean_sales(raw)
+    assert 2800 <= len(c) <= 3000
 
 
-def test_customer_rfm():
-    r = m.customer_rfm(sales, "2025-12-31")
-    assert list(r.columns) == ["recency", "frequency", "monetary"]
-    assert r["frequency"].sum() == len(sales)
-    cid = sales["customer_id"].iloc[0]
-    last = sales[sales.customer_id == cid]["date"].max()
-    assert r.loc[cid, "recency"] == (pd.Timestamp("2025-12-31") - last).days
+def test_b_detect_outliers_iqr():
+    s = pd.Series([1, 2, 2, 3, 3, 3, 4, 4, 100])
+    mask = m.detect_outliers_iqr(s)
+    assert mask.tolist() == [False] * 8 + [True]
+
+
+def test_b_missing_report():
+    df = pd.DataFrame({"a": [1, None, None], "b": [1, 2, None], "c": [1, 2, 3]})
+    r = m.missing_report(df)
+    assert list(r.index) == ["a", "b", "c"]
+    assert r.loc["a", "missing"] == 2 and r.loc["a", "pct"] == 66.67

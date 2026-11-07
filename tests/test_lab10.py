@@ -1,41 +1,48 @@
 import numpy as np
-from loader import load
+import pandas as pd
+from loader import DATA, load
 
 m = load("lab10")
-rng = np.random.default_rng(0)
-X = rng.normal(size=(200, 3))
-y = 4.0 + X @ np.array([1.5, -2.0, 0.5]) + rng.normal(0, 0.1, 200)
+churn = pd.read_csv(DATA / "churn.csv")
 
 
-def test_split_sizes_and_disjoint():
-    Xtr, Xte, ytr, yte = m.train_test_split_manual(X, y, 0.25, seed=1)
-    assert len(Xte) == 50 and len(Xtr) == 150 and len(ytr) == 150 and len(yte) == 50
-    rows = {tuple(r) for r in Xtr} & {tuple(r) for r in Xte}
-    assert not rows
-    a = m.train_test_split_manual(X, y, 0.25, seed=1)[1]
-    assert np.array_equal(a, Xte)
+def test_a_find_leaky_columns():
+    assert m.find_leaky_columns(churn, "churned") == ["cancellation_reason"]
 
 
-def test_fit_linear_recovers_weights():
-    w = m.fit_linear(X, y)
-    assert np.allclose(w, [4.0, 1.5, -2.0, 0.5], atol=0.05)
+def test_a_find_leaky_numeric():
+    df = pd.DataFrame({"x": [1, 2, 3, 4], "y": [0, 0, 1, 1], "z": [5, 1, 4, 2]})
+    df["leak"] = df["y"] * 10
+    assert m.find_leaky_columns(df, "y", 0.95) == ["leak"]
 
 
-def test_predict_and_r2():
-    w = m.fit_linear(X, y)
-    r2 = m.r2_score_manual(y, m.predict_linear(w, X))
-    assert r2 > 0.99
-    assert abs(m.r2_score_manual([1, 2, 3], [1, 2, 3]) - 1) < 1e-12
-    assert abs(m.r2_score_manual([1, 2, 3], [2, 2, 2])) < 1e-12
+def test_a_add_features_copy():
+    before = churn.copy()
+    r = m.add_features(churn)
+    pd.testing.assert_frame_equal(churn, before)
+    assert {"charges_per_month_tenure", "is_new", "many_calls"} <= set(r.columns)
+    assert r["is_new"].dtype == bool
 
 
-def test_knn():
-    Xtr = np.array([[0, 0], [0, 1], [1, 0], [10, 10], [10, 11], [11, 10]], float)
-    ytr = np.array([0, 0, 0, 1, 1, 1])
-    pred = m.knn_predict(Xtr, ytr, np.array([[0.2, 0.2], [10.5, 10.4]]), k=3)
-    assert pred.tolist() == [0, 1]
+def test_b_target_encode_no_leak():
+    tr = pd.DataFrame({"c": ["a", "a", "b"], "t": [1, 0, 1]})
+    te = pd.DataFrame({"c": ["a", "z"], "t": [0, 0]})
+    etr, ete = m.target_encode(tr, te, "c", "t", smoothing=2)
+    gm = 2 / 3
+    assert abs(etr.iloc[0] - (2 * 0.5 + 2 * gm) / 4) < 1e-9
+    assert abs(ete.iloc[1] - gm) < 1e-9          # nieznana kategoria
+    assert abs(ete.iloc[0] - etr.iloc[0]) < 1e-9
 
 
-def test_knn_tie_prefers_smaller_label():
-    Xtr = np.array([[0.0], [2.0]]); ytr = np.array([1, 0])
-    assert m.knn_predict(Xtr, ytr, np.array([[1.0]]), k=2).tolist() == [0]
+def test_b_build_pipeline_fits():
+    try:
+        import sklearn  # noqa: F401
+    except ImportError:
+        return  # lokalnie bez sklearn; w CI jest zainstalowany
+    num = ["tenure_months", "monthly_charges", "support_calls"]
+    cat = ["contract", "internet"]
+    pipe = m.build_pipeline(num, cat)
+    assert [n for n, _ in pipe.steps] == ["prep", "model"]
+    X = churn[num + cat]; y = churn["churned"]
+    pipe.fit(X.iloc[:1500], y.iloc[:1500])  # NaN w monthly_charges musi przejść
+    assert pipe.score(X.iloc[1500:], y.iloc[1500:]) > 0.6

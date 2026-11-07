@@ -9,7 +9,7 @@ Lab nr:
 
 ## Użycie AI (obowiązkowe)
 - [ ] Nie używałem/am AI
-- [ ] Używałem/am (Copilot / inne): do czego? 
+- [ ] Używałem/am (Copilot Chat / inne narzędzie): do czego? 
 - Co w kodzie z AI było błędne lub wymagało poprawki? 
 
 ## Pytania do prowadzącego (opcjonalnie)

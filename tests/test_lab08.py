@@ -1,12 +1,29 @@
 import numpy as np
 import pandas as pd
 from loader import DATA, load
+import matplotlib
+matplotlib.use('Agg')
 
 m = load("lab08")
 churn = pd.read_csv(DATA / "churn.csv")
+rng = np.random.default_rng(1)
+A = rng.normal(10, 2, 80)
+B = rng.normal(11, 2, 90)
 
 
-def test_eda_summary():
+def _labels_ok(ax):
+    return bool(ax.get_title()) and bool(ax.get_xlabel()) and bool(ax.get_ylabel())
+
+
+def test_a_monthly_revenue():
+    s = pd.Series([10, 20, 15, 30], index=["2024-01", "2024-02", "2024-03", "2024-04"])
+    ax = m.plot_monthly_revenue(s)
+    assert _labels_ok(ax)
+    assert len(ax.lines) == 1 and len(ax.lines[0].get_xdata()) == 4
+    assert all(abs(l.get_rotation() - 45) < 1e-6 for l in ax.get_xticklabels())
+
+
+def test_a_eda_summary():
     r = m.eda_summary(churn)
     assert r["n_rows"] == 2000 and r["n_cols"] == 8
     assert r["missing"] == {"monthly_charges": 60}
@@ -14,26 +31,23 @@ def test_eda_summary():
     assert r["duplicates"] == 0
 
 
-def test_correlation_pairs():
-    df = pd.DataFrame({"a": [1, 2, 3, 4], "b": [2, 4, 6, 8.5], "c": [4, 1, 3, 2], "t": ["x"] * 4})
-    r = m.correlation_pairs(df, 0.9)
-    assert len(r) == 1 and r[0][:2] == ("a", "b") and r[0][2] > 0.99
+def test_b_bootstrap_ci_contains_mean_and_deterministic():
+    lo, hi = m.bootstrap_ci(A, n_boot=1000, seed=3)
+    assert lo < A.mean() < hi and 0 < hi - lo < 2
+    assert m.bootstrap_ci(A, n_boot=1000, seed=3) == (lo, hi)
 
 
-def test_correlation_pairs_sorted_unique():
-    r = m.correlation_pairs(churn, 0.0)
-    pairs = [(a, b) for a, b, _ in r]
-    assert len(pairs) == len(set(pairs)) and all(a < b for a, b in pairs)
-    assert [abs(x[2]) for x in r] == sorted([abs(x[2]) for x in r], reverse=True)
+def test_b_bootstrap_ci_other_stat():
+    lo, hi = m.bootstrap_ci(A, stat=np.median, n_boot=500, seed=0)
+    assert lo < np.median(A) < hi
 
 
-def test_top_categories():
-    s = m.top_categories(churn, "contract", 2)
-    assert len(s) == 2 and s.iloc[0] >= s.iloc[1] and s.index[0] == "monthly"
-    assert 0 < s.sum() <= 1
+def test_b_permutation_test_detects_difference():
+    assert m.permutation_test(A, B, n_perm=2000, seed=0) < 0.05
+    same = rng.normal(0, 1, 60)
+    assert m.permutation_test(same, same + rng.normal(0, 1e-3, 60), n_perm=500, seed=0) > 0.5
 
 
-def test_group_profile():
-    p = m.group_profile(churn, "contract", "tenure_months")
-    assert list(p.columns) == ["count", "mean", "median"]
-    assert p["mean"].is_monotonic_decreasing and p["count"].sum() == 2000
+def test_b_permutation_p_in_range():
+    p = m.permutation_test([1, 2, 3], [1, 2, 3], n_perm=200, seed=0)
+    assert 0 < p <= 1

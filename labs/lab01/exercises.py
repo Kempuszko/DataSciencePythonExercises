@@ -1,7 +1,8 @@
-"""Lab 01 – Git, GitHub, środowisko, pierwszy kontakt z Copilotem."""
+"""Lab 01 – Git, GitHub, środowisko i pierwszy kontakt z Copilot Chat."""
 import re
 from collections import Counter
 
+# --- część A ---
 def slugify(title):
     """Zamień tytuł na slug: małe litery, tylko [a-z0-9], słowa łączone '-'.
 
@@ -10,6 +11,7 @@ def slugify(title):
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
+# --- część B ---
 def word_freq(text, n=3):
     """Zwróć listę n najczęstszych słów jako [(słowo, liczba), ...].
 

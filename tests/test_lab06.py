@@ -1,47 +1,91 @@
+import sqlite3
+
 import numpy as np
 import pandas as pd
 from loader import DATA, load
 
 m = load("lab06")
-raw = pd.read_csv(DATA / "sales_dirty.csv")
+cust = pd.read_csv(DATA / "customers.csv").head(50)
 
 
-def test_clean_does_not_mutate_input():
-    before = raw.copy()
-    m.clean_sales(raw)
-    pd.testing.assert_frame_equal(raw, before)
+def _db():
+    conn = sqlite3.connect(":memory:")
+    m.create_schema(conn)
+    return conn
 
 
-def test_clean_sales_rules():
-    c = m.clean_sales(raw)
-    assert not c.duplicated().any()
-    assert c["order_id"].is_unique and c["order_id"].is_monotonic_increasing
-    assert set(c["country"]) <= {"PL", "DE", "CZ", "SK", "FR", "UK"}
-    assert c["amount"].dtype.kind == "f" and (c["amount"] > 0).all() and c["amount"].notna().all()
-    assert c["quantity"].dtype.kind == "i" and c["quantity"].notna().all()
-    assert str(c["date"].dtype).startswith("datetime64") and c["date"].notna().all()
-    assert list(c.index) == list(range(len(c)))
+def _raises(exc, f):
+    try:
+        f()
+    except exc:
+        return True
+    return False
 
 
-def test_clean_sales_keeps_good_rows():
-    c = m.clean_sales(raw)
-    assert 2800 <= len(c) <= 3000  # nie wyrzucaj zbyt wielu wierszy
+def test_a_generate_orders_shape_and_determinism():
+    a = m.generate_orders(300, seed=7)
+    b = m.generate_orders(300, seed=7)
+    assert list(a.columns) == ["order_id", "date", "customer_id", "product", "quantity", "amount"]
+    assert len(a) == 300 and a.equals(b) and not a.equals(m.generate_orders(300, seed=8))
+    assert a["order_id"].tolist() == list(range(1, 301))
 
 
-def test_parse_mixed_dates():
-    s = pd.Series(["2024-05-23", "23/05/2024", "01/02/2024"])
-    r = m.parse_mixed_dates(s)
-    assert r.tolist() == [pd.Timestamp("2024-05-23"), pd.Timestamp("2024-05-23"), pd.Timestamp("2024-02-01")]
+def test_a_generate_orders_ranges():
+    a = m.generate_orders(500, seed=1)
+    assert a["customer_id"].between(1, 50).all() and a["quantity"].between(1, 5).all()
+    assert (a["amount"] > 0).all() and set(a["product"]) <= {"laptop", "phone", "desk", "chair", "pen"}
+    d = pd.to_datetime(a["date"], format="%Y-%m-%d")
+    assert d.min() >= pd.Timestamp("2024-01-01") and d.max() <= pd.Timestamp("2024-12-31")
+    assert (a["amount"] * 100 % 1 < 1e-6).all() or np.allclose(a["amount"], a["amount"].round(2))
 
 
-def test_detect_outliers_iqr():
-    s = pd.Series([1, 2, 2, 3, 3, 3, 4, 4, 100])
-    mask = m.detect_outliers_iqr(s)
-    assert mask.tolist() == [False] * 8 + [True]
+def test_a_create_schema_tables_and_index():
+    conn = _db()
+    names = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type IN ('table','index')")}
+    assert {"customers", "orders", "idx_orders_customer"} <= names
+    cols = {r[1]: r for r in conn.execute("PRAGMA table_info(orders)")}
+    assert cols["order_id"][5] == 1                       # klucz główny
+    assert cols["amount"][3] == 1 and cols["product"][3] == 1  # NOT NULL
 
 
-def test_missing_report():
-    df = pd.DataFrame({"a": [1, None, None], "b": [1, 2, None], "c": [1, 2, 3]})
-    r = m.missing_report(df)
-    assert list(r.index) == ["a", "b", "c"]
-    assert r.loc["a", "missing"] == 2 and r.loc["a", "pct"] == 66.67
+def test_a_create_schema_constraints_enforced():
+    conn = _db()
+    conn.execute("INSERT INTO customers VALUES (1, 'PL', 'consumer', '2022-01-01')")
+    conn.execute("INSERT INTO orders VALUES (1, '2024-01-01', 1, 'pen', 1, 5.0)")
+    assert _raises(sqlite3.IntegrityError, lambda: conn.execute("INSERT INTO orders VALUES (2, '2024-01-01', 99, 'pen', 1, 5.0)"))  # FK
+    assert _raises(sqlite3.IntegrityError, lambda: conn.execute("INSERT INTO orders VALUES (3, '2024-01-01', 1, 'pen', 0, 5.0)"))   # CHECK
+    assert _raises(sqlite3.IntegrityError, lambda: conn.execute("INSERT INTO orders VALUES (1, '2024-01-01', 1, 'pen', 1, 5.0)"))   # PK
+
+
+def test_b_load_into_db_counts():
+    conn = _db()
+    orders = m.generate_orders(200, seed=3)
+    assert m.load_into_db(conn, cust, orders) == (50, 200)
+    assert conn.execute("SELECT COUNT(*) FROM orders").fetchone()[0] == 200
+    assert conn.execute("SELECT COUNT(*) FROM customers").fetchone()[0] == 50
+
+
+def _loaded():
+    conn = _db()
+    orders = m.generate_orders(400, seed=5)
+    m.load_into_db(conn, cust, orders)
+    return conn, orders
+
+
+def test_b_revenue_by_country_sql():
+    conn, orders = _loaded()
+    r = m.revenue_by_country_sql(conn)
+    assert list(r.columns) == ["country", "revenue", "n_orders"]
+    exp = (orders.merge(cust[["customer_id", "country"]], on="customer_id")
+           .groupby("country")["amount"].agg(["sum", "count"]).sort_values("sum", ascending=False))
+    assert list(r["country"]) == list(exp.index)
+    assert np.allclose(r["revenue"], exp["sum"].round(2)) and list(r["n_orders"]) == list(exp["count"])
+
+
+def test_b_top_customers_sql():
+    conn, orders = _loaded()
+    r = m.top_customers_sql(conn, 4)
+    assert list(r.columns) == ["customer_id", "revenue"] and len(r) == 4
+    assert r["revenue"].is_monotonic_decreasing
+    exp = orders.groupby("customer_id")["amount"].sum().nlargest(4)
+    assert np.allclose(sorted(r["revenue"]), sorted(exp.round(2)))

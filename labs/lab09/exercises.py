@@ -1,27 +1,42 @@
-"""Lab 09 – Statystyka od podstaw (tylko NumPy)."""
+"""Lab 09 – Uczenie maszynowe: regresja, klasyfikacja, metryki, walidacja."""
 import numpy as np
 
-def bootstrap_ci(x, stat=np.mean, n_boot=2000, alpha=0.05, seed=0):
-    """Percentylowy przedział ufności bootstrap dla statystyki `stat`.
+# --- część A ---
+def train_test_split_manual(X, y, test_size=0.25, seed=0):
+    """Losowy podział: zwróć X_train, X_test, y_train, y_test.
 
-    Losuj ze zwracaniem (rng = np.random.default_rng(seed)), n_boot powtórzeń.
-    Zwróć krotkę (dolna, górna) = percentyle alpha/2 i 1-alpha/2.
+    rng = np.random.default_rng(seed); permutacja indeksów; n_test = round(n*test_size);
+    pierwsze n_test indeksów -> test, reszta -> train.
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def welch_t(a, b):
-    """Statystyka t Welcha: (mean_a - mean_b) / sqrt(var_a/n_a + var_b/n_b), ddof=1."""
+def fit_linear(X, y):
+    """Regresja liniowa OLS z wyrazem wolnym. Zwróć wektor wag [b0, b1, ..., bp]
+    (b0 = intercept). Użyj np.linalg.lstsq."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def cohens_d(a, b):
-    """Rozmiar efektu d Cohena z połączonym odchyleniem standardowym (ddof=1):
-    sp = sqrt(((na-1)va + (nb-1)vb) / (na+nb-2)); d = (mean_a - mean_b)/sp."""
+def predict_linear(w, X):
+    """Predykcje modelu liniowego z wag zwróconych przez fit_linear."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def permutation_test(a, b, n_perm=5000, seed=0):
-    """Dwustronny test permutacyjny różnicy średnich.
+def r2_score_manual(y_true, y_pred):
+    """Współczynnik determinacji R^2 = 1 - SS_res / SS_tot."""
+    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-    p = (1 + #{|perm_diff| >= |obs_diff|}) / (1 + n_perm)
-    (rng = np.random.default_rng(seed), mieszaj połączoną próbę).
+# --- część B ---
+def confusion_counts(y_true, y_pred):
+    """Zwróć dict {'tp','fp','tn','fn'} dla klasyfikacji binarnej (klasa pozytywna = 1)."""
+    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
+
+def precision_recall_f1(y_true, y_pred):
+    """Zwróć (precision, recall, f1). Gdy mianownik == 0, dana miara = 0.0."""
+    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
+
+def kfold_indices(n, k, seed=0):
+    """Podział na k foldów: lista k krotek (train_idx, test_idx).
+
+    Permutacja rng = np.random.default_rng(seed).permutation(n); foldy jak
+    np.array_split (rozmiary różnią się co najwyżej o 1); każdy indeks trafia
+    do test dokładnie raz.
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')

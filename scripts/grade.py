@@ -48,14 +48,23 @@ def main():
     rows = []
     for login, lab in sorted(labs, key=lambda t: t[1]):
         if not (ROOT / "tests" / f"test_{lab}.py").exists():
-            rows.append((lab, "pominięty", "brak testów dla tego labu")); continue
+            rows.append((f"{lab}", "pominięty", "brak testów dla tego labu")); continue
         env = dict(os.environ, SUBMISSION_DIR=str(ROOT / "submissions" / login))
-        p = subprocess.run([sys.executable, "-m", "pytest", f"tests/test_{lab}.py", "-q", "--tb=short"],
-                           cwd=ROOT, env=env, capture_output=True, text=True)
-        tail = [l for l in p.stdout.strip().splitlines() if l.strip()][-1:] or [""]
-        rows.append((lab, "✅ zaliczony" if p.returncode == 0 else "❌ błędy", tail[0]))
-        if p.returncode != 0:
-            print(p.stdout[-3000:])
+        for part, label in (("a", "część A (wymagana)"), ("b", "część B (rozszerzenie)")):
+            p = subprocess.run([sys.executable, "-m", "pytest", f"tests/test_{lab}.py", "-q", "--tb=short",
+                                "-k", f"test_{part}_"], cwd=ROOT, env=env, capture_output=True, text=True)
+            if p.returncode == 5:      # brak testów w tej części
+                continue
+            tail = [l for l in p.stdout.strip().splitlines() if l.strip()][-1:] or [""]
+            if p.returncode == 0:
+                status = "✅ zaliczona"
+            elif part == "a":
+                status = "❌ błędy"
+            else:
+                status = "⚠️ niezaliczona (nieobowiązkowa)"
+            rows.append((f"{lab} – {label}", status, tail[0]))
+            if p.returncode != 0:
+                print(p.stdout[-3000:])
 
     project = ROOT / "submissions" / a.author / "project"
     if project.is_dir() and any(f.startswith(f"submissions/{a.author}/project") for f in files):
@@ -63,11 +72,11 @@ def main():
         from loader import load  # noqa: E402
         os.environ["SUBMISSION_DIR"] = str(ROOT / "submissions" / a.author)
         try:
-            res = load("lab15").check_project(project)
+            res = load("lab12").check_project(project)
             ok = all(res.values())
             rows.append(("project", "✅ struktura OK" if ok else "❌ braki",
                          ", ".join(k for k, v in res.items() if not v) or "komplet"))
-        except Exception as e:  # lab15/exercises.py jeszcze nie gotowy
+        except Exception as e:  # lab12/exercises.py jeszcze nie gotowy
             rows.append(("project", "❌ błąd", repr(e)[:120]))
 
     md = ["### Wynik autogradingu", "", "| Element | Status | Szczegóły |", "|---|---|---|"]
@@ -78,7 +87,7 @@ def main():
     print(text)
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         Path(os.environ["GITHUB_STEP_SUMMARY"]).write_text(text, encoding="utf-8")
-    failed = problems or any("❌" in s for _, s, _ in rows)
+    failed = problems or any("❌" in st for _, st, _ in rows)
     sys.exit(1 if failed else 0)
 
 

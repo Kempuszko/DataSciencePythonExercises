@@ -1,5 +1,6 @@
-"""Lab 02 – Python dla Data Science + weryfikacja kodu od AI."""
+"""Lab 02 – Python dla Data Science i weryfikacja kodu od AI."""
 
+# --- część A ---
 def moving_average(xs, k):
     """Średnia krocząca z oknem k. Zwraca listę długości len(xs)-k+1.
 
@@ -16,6 +17,7 @@ def flatten(nested):
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
+# --- część B ---
 def parse_log_line(line):
     """Sparsuj linię logu 'YYYY-MM-DD HH:MM:SS LEVEL [modul] wiadomość'.
 

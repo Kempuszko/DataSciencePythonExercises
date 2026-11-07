@@ -1,32 +1,31 @@
-"""Lab 07 – Wizualizacja (matplotlib). Funkcje zwracają obiekt Axes."""
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+"""Lab 07 – SQL analityczny (działa w SQLite i DuckDB).
 
-def plot_monthly_revenue(series):
-    """Wykres liniowy przychodu miesięcznego (indeks = miesiące, wartości = przychód).
+Funkcje zwracają TEKST zapytania SQL. W testach dostępne są tabele:
+  orders(order_id, date, customer_id, product, category, quantity, amount, country)
+  customers(customer_id, country, segment, signup_date)
+`date` to tekst 'YYYY-MM-DD'; miesiąc wyciągniesz przez strftime('%Y-%m', date) (SQLite).
+"""
 
-    Wymagania: tytuł, opisy osi x i y (niepuste), dokładnie jedna linia
-    z len(series) punktami, etykiety osi x obrócone o 45 stopni.
-    """
+# --- część A ---
+def sql_monthly_revenue():
+    """Kolumny: month ('YYYY-MM'), revenue (SUM(amount) zaokrąglone do 2 miejsc);
+    jeden wiersz na miesiąc, rosnąco po month."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def plot_hist(values, bins=20):
-    """Histogram z liczbą słupków == bins, tytułem i opisami osi (niepuste)."""
+def sql_top_products(n):
+    """Kolumny: product, units (SUM(quantity)), revenue (SUM(amount), 2 miejsca);
+    n produktów o największym revenue, malejąco (remis: alfabetycznie po product)."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def plot_bar_by_category(series, top=5):
-    """Wykres słupkowy `top` największych kategorii (indeks = kategoria), malejąco.
-
-    Wymagania: tytuł, opisy osi, liczba słupków == min(top, len(series)),
-    pierwszy słupek jest największy.
-    """
+# --- część B ---
+def sql_running_total():
+    """Kolumny: month, revenue, running_revenue – narastająca suma przychodu po miesiącach
+    (funkcja okna SUM() OVER (ORDER BY month)); wartości zaokrąglone do 2 miejsc;
+    rosnąco po month. Wskazówka: najpierw CTE z przychodem miesięcznym."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def plot_scatter_with_trend(x, y):
-    """Scatter + prosta trendu (OLS, np.polyfit stopnia 1).
-
-    Wymagania: tytuł, opisy osi, jedna kolekcja punktów (scatter) o len(x)
-    punktach oraz dokładnie jedna linia (trend).
-    """
+def sql_top3_customers_per_country():
+    """Kolumny: country, customer_id, revenue (SUM(amount), 2 miejsca), rank_in_country
+    (RANK() OVER (PARTITION BY country ORDER BY revenue DESC)); tylko klienci z rank <= 3;
+    country to kraj KLIENTA (tabela customers); sortuj po country, rank_in_country, customer_id."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')

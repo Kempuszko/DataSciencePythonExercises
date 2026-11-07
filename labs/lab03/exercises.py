@@ -1,6 +1,8 @@
-"""Lab 03 – NumPy: wektoryzacja, broadcasting."""
+"""Lab 03 – NumPy i pandas I: wczytywanie, selekcja, agregacje."""
 import numpy as np
+import pandas as pd
 
+# --- część A ---
 def standardize(a):
     """Standaryzacja kolumnowa (z-score): (a - mean) / std (ddof=0).
 
@@ -8,17 +10,18 @@ def standardize(a):
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def pairwise_distances(X):
-    """Macierz odległości euklidesowych (n, n) między wierszami X – BEZ pętli.
+def load_sales(path):
+    """Wczytaj sales.csv; kolumna `date` ma mieć typ datetime64."""
+    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-    Wskazówka: broadcasting X[:, None, :] - X[None, :, :].
+# --- część B ---
+def top_countries(df, n=3):
+    """Zwróć Series: n krajów o największym łącznym `amount` (malejąco).
+
+    Indeks = kraj, wartości = suma amount.
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def rolling_mean(x, k):
-    """Średnia krocząca przez cumsum (bez pętli). Długość wyniku: len(x)-k+1."""
-    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
-
-def one_hot(labels, n_classes):
-    """One-hot dla wektora etykiet 0..n_classes-1 -> macierz (len, n_classes) typu int."""
+def revenue_by_month(df):
+    """Zwróć Series: suma `amount` per miesiąc; indeks jako tekst 'YYYY-MM', rosnąco."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')

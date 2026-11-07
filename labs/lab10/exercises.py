@@ -1,30 +1,40 @@
-"""Lab 10 – Podstawy ML od zera (NumPy), potem porównanie ze scikit-learn."""
+"""Lab 10 – Potoki ML i wyciek danych (data leakage)."""
 import numpy as np
+import pandas as pd
 
-def train_test_split_manual(X, y, test_size=0.25, seed=0):
-    """Losowy podział: zwróć X_train, X_test, y_train, y_test.
+# --- część A ---
+def find_leaky_columns(df, target, threshold=0.95):
+    """Znajdź kolumny 'przeciekające' target.
 
-    rng = np.random.default_rng(seed); permutacja indeksów; n_test = round(n*test_size);
-    pierwsze n_test indeksów -> test, reszta -> train.
+    Dla kolumn liczbowych: |korelacja z target| >= threshold.
+    Dla kolumn tekstowych: jeśli ZNAJOMOŚĆ kolumny niemal jednoznacznie wyznacza
+    target, tzn. średnia (po wartościach kolumny) z max(p, 1-p) >= threshold,
+    gdzie p to odsetek target==1 w danej wartości (ważona liczebnością).
+    Zwróć posortowaną listę nazw (bez samego target).
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
-def fit_linear(X, y):
-    """Regresja liniowa OLS z wyrazem wolnym. Zwróć wektor wag [b0, b1, ..., bp]
-    (b0 = intercept). Użyj np.linalg.lstsq."""
-    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
-
-def predict_linear(w, X):
-    """Predykcje modelu liniowego z wag zwróconych przez fit_linear."""
-    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
-
-def r2_score_manual(y_true, y_pred):
-    """Współczynnik determinacji R^2 = 1 - SS_res / SS_tot."""
-    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
-
-def knn_predict(X_train, y_train, X_test, k=3):
-    """Klasyfikator k-NN (odległość euklidesowa, głosowanie większościowe).
-
-    Remis głosów rozstrzygaj wybierając mniejszą etykietę. Bez sklearn.
+def add_features(df):
+    """Dodaj do KOPII churn df kolumny:
+    charges_per_month_tenure = monthly_charges * tenure_months,
+    is_new = tenure_months < 12 (bool),
+    many_calls = support_calls >= 4 (bool).
     """
+    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
+
+# --- część B ---
+def target_encode(train, test, col, target, smoothing=10):
+    """Bezpieczne (bez przecieku) target encoding.
+
+    Dla każdej kategorii: (n*mean_cat + smoothing*global_mean) / (n + smoothing),
+    gdzie statystyki liczone są WYŁĄCZNIE na `train`. Nieznane kategorie w `test`
+    dostają global_mean z train. Zwróć (train_encoded, test_encoded) jako Series.
+    """
+    raise NotImplementedError('TODO: zaimplementuj tę funkcję')
+
+def build_pipeline(num_cols, cat_cols):
+    """Zwróć sklearn Pipeline: ColumnTransformer (liczbowe: SimpleImputer(median)
+    + StandardScaler; kategoryczne: OneHotEncoder(handle_unknown='ignore'))
+    -> LogisticRegression(max_iter=1000). Pipeline ma mieć kroki o nazwach
+    'prep' i 'model'."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')

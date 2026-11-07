@@ -1,7 +1,11 @@
 # Data Science wspomagane programowanie w Pythonie
 
-Materiały do kursu dla studentów informatyki: **15 laboratoriów** z analizy danych i data science,
-z naciskiem na dobre praktyki inżynierskie (testy, Git, reprodukowalność) i **odpowiedzialną pracę z asystentem AI** (Copilot).
+Ćwiczenia do kursu dla studentów informatyki: **12 laboratoriów (każde 2 × 45 min) + 2 dodatkowe** z analizy danych i data science,
+z naciskiem na dobre praktyki inżynierskie (testy, Git, SQL, reprodukowalność) i **odpowiedzialną pracę z asystentem AI**.
+
+**Narzędzia: darmowe dla studenta.** Otwarte: Python, JupyterLab, pandas, NumPy, scikit-learn, SQLite, DuckDB, pytest, Git, Miniforge/conda-forge.
+Asystent AI: **Microsoft 365 Copilot Chat** z kontem uczelnianym (w przeglądarce lub w Teams; darmowy w ramach licencji uczelni, ale nie open source).
+Kod hostujemy na GitHubie (darmowym dla repozytoriów publicznych).
 
 ## Zanim zaczniesz: konto GitHub
 
@@ -15,7 +19,7 @@ z naciskiem na dobre praktyki inżynierskie (testy, Git, reprodukowalność) i *
 git clone https://github.com/<TWÓJ_LOGIN>/DataSciencePythonExercises.git
 cd DataSciencePythonExercises
 
-# 2. Środowisko (jednorazowo)
+# 2. Środowisko (jednorazowo) – Miniforge (conda-forge), albo venv + pip install -r requirements.txt
 conda env create -f environment.yml
 conda activate ds-exercises
 
@@ -25,38 +29,38 @@ mkdir -p submissions/<TWÓJ_LOGIN> && cp -r labs/lab01 submissions/<TWÓJ_LOGIN>
 jupyter lab submissions/<TWÓJ_LOGIN>/lab01/lab.ipynb
 ```
 
-Bez condy: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
-
 Oddawanie prac przez Pull Request – opis w [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Zawartość
 
-| Tydzień | Temat | Lab (`labs/`) |
-|---|---|---|
-| 1 | Wprowadzenie, narzędzia, **zasady pracy z AI** | Git/GitHub, Copilot: prompting |
-| 2 | Python dla DS, **weryfikacja kodu od AI** | moving_average, flatten, parsowanie logów |
-| 3 | NumPy | wektoryzacja, broadcasting |
-| 4 | Pandas I | wczytywanie, selekcja, agregacje |
-| 5 | Pandas II | merge, pivot, czas, RFM |
-| 6 | Czyszczenie danych | brudne dane sprzedażowe |
-| 7 | Wizualizacja | matplotlib, uczciwe wykresy |
-| 8 | EDA | mini-projekt: odejścia klientów |
-| 9 | Statystyka | bootstrap, testy, rozmiar efektu |
-| 10 | ML: podstawy | OLS, k-NN, train/test od zera |
-| 11 | Klasyfikacja i metryki | precision/recall, AUC, CV |
-| 12 | Pipeline'y i data leakage | wykrywanie przecieków, Pipeline |
-| 13 | Drzewa, ensemble, interpretacja | Gini, podział, permutation importance |
-| 14 | Wydajność i pamięć | dtypes, chunking, DuckDB |
-| 15 | Projekt końcowy, etyka | projekt + prezentacja |
+Każdy lab ma **część A (~45 min, wymagana – zalicza lab)** i **część B (~45 min, rozszerzenie)**.
 
-Pełny sylabus, ocenianie i zasady: [SYLLABUS.md](SYLLABUS.md).
+| Lab | Temat | Narzędzia |
+|---|---|---|
+| 01 | Git/GitHub, środowisko, Copilot Chat | Git, Copilot Chat |
+| 02 | Python dla DS, testy, weryfikacja kodu od AI | pytest |
+| 03 | NumPy i pandas I | NumPy, pandas |
+| 04 | pandas II: merge, pivot, czas, RFM (mały ETL) | pandas |
+| 05 | Czyszczenie danych i jakość danych | pandas |
+| 06 | Bazy danych: generowanie danych, schemat, import | SQLite |
+| 07 | SQL analityczny (funkcje okna) i DuckDB | SQLite, DuckDB |
+| 08 | Wizualizacja, EDA, wnioskowanie (bootstrap, test permutacyjny) | matplotlib |
+| 09 | ML: regresja, klasyfikacja, metryki, walidacja | NumPy, scikit-learn |
+| 10 | Potoki ML i wyciek danych | scikit-learn |
+| 11 | Generatywna AI w praktyce: wyszukiwanie, RAG, ocena odpowiedzi | NumPy, Copilot Chat |
+| 12 | Projekt końcowy | wszystko powyżej |
+| 13 | *Dodatkowy:* drzewa, ensemble, interpretacja | NumPy |
+| 14 | *Dodatkowy:* wydajność i pamięć | pandas |
+
+Sylabus, ocenianie i zasady: [SYLLABUS.md](SYLLABUS.md).
 
 ## Struktura repo
 
 ```
 labs/labNN/   lab.ipynb (instrukcja) + exercises.py (szablon funkcji do uzupełnienia)
-tests/        testy autogradingu (pytest)
+tests/        testy autogradingu (pytest): test_a_* = część A, test_b_* = część B
 data/         zbiory danych (syntetyczne, w repo)
+docs/         instrukcje PDF (konto GitHub, przygotowanie środowiska)
 submissions/  tu trafiają Twoje prace: submissions/<login>/labNN/
 scripts/      make_data.py (generator danych), grade.py (autograder)
 ```

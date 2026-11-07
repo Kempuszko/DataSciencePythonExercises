@@ -1,7 +1,8 @@
-"""Lab 14 – Wydajność i pamięć w pandas."""
+"""Lab 14 (dodatkowy) – Wydajność i pamięć."""
 import numpy as np
 import pandas as pd
 
+# --- część A ---
 def memory_mb(df):
     """Całkowite zużycie pamięci DataFrame (deep=True) w MB (1 MB = 1024**2 B)."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
@@ -16,6 +17,7 @@ def optimize_dtypes(df, cat_threshold=0.5):
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
+# --- część B ---
 def chunked_group_sum(path, by, col, chunksize=500):
     """Suma `col` w grupach `by` z pliku CSV czytanego fragmentami (chunksize wierszy),
     bez wczytywania całości. Zwróć Series posortowaną po indeksie."""

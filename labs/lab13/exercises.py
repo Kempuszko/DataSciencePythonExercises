@@ -1,6 +1,7 @@
-"""Lab 13 – Drzewa, ensemble, interpretacja (NumPy)."""
+"""Lab 13 (dodatkowy) – Drzewa decyzyjne, ensemble, interpretacja."""
 import numpy as np
 
+# --- część A ---
 def gini(y):
     """Nieczystość Gini'ego zbioru etykiet: 1 - sum(p_k^2). Pusty zbiór -> 0.0."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
@@ -11,6 +12,7 @@ def best_split(x, y):
     wartościami. Zwróć (próg, ważony_gini). Brak kandydatów -> (None, gini(y))."""
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 
+# --- część B ---
 def bagging_predict(models_preds):
     """Agregacja klasyfikatorów przez głosowanie większościowe.
 

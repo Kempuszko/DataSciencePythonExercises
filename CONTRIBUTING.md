@@ -5,7 +5,7 @@
 2. Jeden PR = jedno laboratorium. Nazwa gałęzi: `labNN-<login>`.
 3. Zmieniasz pliki **wyłącznie** w `submissions/<twój_login>/` (autograder odrzuci PR z innymi zmianami).
 4. Folder `submissions/<login>/labNN/` zawiera: `exercises.py` oraz `lab.ipynb` (z odpowiedziami na pytania).
-5. **Deklarujesz użycie AI** w opisie PR (jest checklista w szablonie).
+5. **Deklarujesz użycie AI** w opisie PR (jest checklista w szablonie). Asystent AI to Microsoft 365 Copilot Chat na koncie uczelnianym – patrz Lab 01.
 
 ## Krok po kroku
 ```bash
@@ -31,7 +31,8 @@ git push -u origin lab03-<login>
 3. Poprawki: dopisujesz kolejne commity do tej samej gałęzi – PR aktualizuje się sam.
 
 ## Autograding – co oznacza zielony ✅
-Funkcje zwracają poprawne wyniki na testowych przypadkach. **Nie oznacza** to pełnej oceny: oceniamy też zrozumienie
+Testy `test_a_*` (część A) muszą przejść, aby lab był zaliczony; `test_b_*` (część B) to rozszerzenie – jego niepowodzenie pokaże się jako ostrzeżenie, nie jako błąd.
+Zielony ✅ znaczy, że funkcje zwracają poprawne wyniki na testowych przypadkach. **Nie oznacza** to pełnej oceny: oceniamy też zrozumienie
 (odpowiedzi, review, możliwa krótka rozmowa o Twoim kodzie).
 
 ## Uczciwość akademicka

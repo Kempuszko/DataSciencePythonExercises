@@ -1,40 +1,27 @@
-# Sylabus: Data Science wspomagane programowanie Python
+# Sylabus (skrót): Data Science wspomagana programowaniem Python
 
-**Dla:** studenci informatyki · **Forma:** 15 × wykład (90 min) + 15 × laboratorium (90 min) · **Język:** polski, kod i dokumentacja po angielsku
+Pełna karta przedmiotu (wersja 2026/2027) jest dokumentem uczelnianym. Poniżej skrót istotny dla ćwiczeń.
 
-## Efekty uczenia się
-Po kursie student:
-1. przeprowadza pełny cykl analizy danych w Pythonie (czyszczenie → EDA → model → walidacja → wnioski),
-2. stosuje pandas/NumPy/scikit-learn i rozumie, co dzieje się "pod spodem" (implementacje od zera),
-3. rozpoznaje i unika typowych błędów (leakage, złe metryki, p-hacking, mylące wykresy),
-4. pracuje zespołowo-inżyniersko: Git, PR, testy, reprodukowalne środowisko,
-5. **krytycznie używa asystenta AI**: formułuje prompty, weryfikuje i testuje wynik, deklaruje użycie.
+**Dla:** informatyka, studia I stopnia inżynierskie · **Godziny:** 10 w + 24 ćw. (stacjonarne), 8 w + 19 ćw. (niestacjonarne).
+Ćwiczenia: 12 laboratoriów po 2 godziny dydaktyczne (2 × 45 min); w trybie niestacjonarnym laby 4, 7 i 10 trwają 1 godzinę (część A), a lab 12 (projekt) jest realizowany samodzielnie.
 
-## Plan zajęć
-Patrz tabela w [README.md](README.md). Bloki: *Fundamenty i praca z AI* (1–2) · *Dane w Pythonie* (3–8) · *Wnioskowanie i ML* (9–13) · *Praktyka produkcyjna* (14–15).
+## Efekty uczenia się (umiejętności)
+Student: konfiguruje reprodukowalne środowisko (Git, Python, Jupyter) · implementuje i testuje algorytmy przetwarzania danych (NumPy, pandas) ·
+projektuje schemat bazy i wykonuje zapytania SQL (SQLite, DuckDB) · czyści dane, prowadzi EDA i podstawowe wnioskowanie ·
+buduje i ocenia modele ML bez wycieku danych · krytycznie wykorzystuje asystentów AI i modele językowe · przygotowuje reprodukowalny raport.
 
-## Ocenianie (propozycja – do dostosowania)
-| Składnik | Waga | Jak |
-|---|---|---|
-| Laboratoria 1–14 | 40% | autograding (50%) + review PR: jakość, odpowiedzi, deklaracja AI (50%) |
-| Kolokwium / krótka rozmowa o własnym kodzie | 15% | pytania o kod z 2 losowych labów (sprawdza zrozumienie, nie tylko wynik) |
-| Projekt końcowy (Lab 15) | 35% | kryteria w wykładzie 15; prezentacja 10 min |
-| Aktywność, higiena PR (opis, commity) | 10% | |
+## Plan ćwiczeń
+Patrz tabela w [README.md](README.md).
 
-Zaliczenie: ≥ 50% łącznie i oddane ≥ 10 z 14 labów.
+## Zaliczenie ćwiczeń (propozycja)
+- zadania bieżące w repozytorium GitHub (autograding części A + review jakości i odpowiedzi): 60%,
+- projekt końcowy (Lab 12): 40%,
+- wymagane min. 50% z każdej składowej; część B każdego labu i labów 13–14 premiowana punktami dodatkowymi.
 
 ## Zasady użycia AI
-- Dozwolone narzędzia: GitHub Copilot (VS Code), Microsoft 365 Copilot Chat; inne – po uzgodnieniu.
+- Podstawowe narzędzie: **Microsoft 365 Copilot Chat** na koncie uczelnianym (dostępny dla studentów); inne darmowe narzędzia – po uzgodnieniu. Nie wklejaj do asystenta danych osobowych ani haseł.
 - Każdy PR zawiera deklarację użycia AI i opis poprawek.
-- Kod z AI musi przejść testy i być przez studenta zrozumiany (kryterium na review/rozmowie).
-- Lab 01–02: moduł wprowadzający (prompting, checklista przeglądu). W kolejnych labach AI jest dozwolone wg tych zasad, a notebooki zawierają punktowe zadania "Copilot".
+- Kod z AI musi przejść testy i być przez studenta zrozumiany (kryterium na review; możliwa krótka rozmowa o kodzie).
 
-## Harmonogram tygodniowy (szablon)
-Wykład: 60 min treści + 30 min demo/dyskusji. Lab: 15 min omówienia poprzedniego PR (typowe błędy z review) + 75 min pracy. Praca domowa: dokończenie labu i PR do następnego wykładu.
-
-## Literatura (darmowa)
-- VanderPlas, *Python Data Science Handbook* (online)
-- McKinney, *Python for Data Analysis* (online, 3. wyd.)
-- James et al., *Introduction to Statistical Learning* (PDF)
-- Downey, *Think Stats* (online)
-- Dokumentacja: pandas, scikit-learn, GitHub Copilot
+## Literatura i materiały (darmowe lub otwarte dokumentacje)
+Dokumentacja: Python, pandas, NumPy, scikit-learn, SQLite, DuckDB. Podręczniki: VanderPlas, *Python Data Science Handbook* (online) · McKinney, *Python for Data Analysis* (online).

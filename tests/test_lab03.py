@@ -1,35 +1,38 @@
 import numpy as np
-from loader import load
+import pandas as pd
+from loader import DATA, load
 
 m = load("lab03")
 
 
-def test_standardize():
+def _df():
+    return m.load_sales(DATA / "sales.csv")
+
+
+def test_a_standardize():
     a = np.array([[1., 5.], [2., 5.], [3., 5.]])
     z = m.standardize(a)
     assert np.allclose(z[:, 0].mean(), 0) and np.allclose(z[:, 0].std(), 1)
-    assert np.allclose(z[:, 1], 0)  # stała kolumna -> zera, bez NaN
+    assert np.allclose(z[:, 1], 0)
 
 
-def test_pairwise_distances():
-    X = np.array([[0., 0.], [3., 4.], [6., 8.]])
-    D = m.pairwise_distances(X)
-    assert D.shape == (3, 3)
-    assert np.allclose(D, [[0, 5, 10], [5, 0, 5], [10, 5, 0]])
+def test_a_load_sales_dates():
+    df = _df()
+    assert str(df["date"].dtype).startswith("datetime64")
+    assert len(df) == 3000
 
 
-def test_pairwise_random_symmetry():
-    X = np.random.default_rng(0).normal(size=(20, 4))
-    D = m.pairwise_distances(X)
-    assert np.allclose(D, D.T) and np.allclose(np.diag(D), 0)
+def test_b_top_countries():
+    df = _df()
+    r = m.top_countries(df, 3)
+    assert len(r) == 3 and r.is_monotonic_decreasing
+    expected = df.groupby("country")["amount"].sum().nlargest(3)
+    assert list(r.index) == list(expected.index)
+    assert abs(r.iloc[0] - expected.iloc[0]) < 1e-6
 
 
-def test_rolling_mean():
-    r = m.rolling_mean([1, 2, 3, 4, 5], 3)
-    assert np.allclose(r, [2, 3, 4])
-
-
-def test_one_hot():
-    o = m.one_hot([0, 2, 1], 3)
-    assert o.tolist() == [[1, 0, 0], [0, 0, 1], [0, 1, 0]]
-    assert o.dtype.kind == "i"
+def test_b_revenue_by_month():
+    df = _df()
+    r = m.revenue_by_month(df)
+    assert r.index[0] == "2024-01" and r.index.is_monotonic_increasing
+    assert abs(r.sum() - df["amount"].sum()) < 1e-6
