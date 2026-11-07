@@ -14,6 +14,8 @@ def optimize_dtypes(df, cat_threshold=0.5):
     - kolumny tekstowe, w których unikalnych wartości jest < cat_threshold * len(df)
       -> 'category'.
     Wartości (po rzutowaniu) muszą pozostać równe oryginałowi (float32: z tolerancją).
+    Uwaga (pandas 3): kolumny tekstowe mają dtype `str`, nie `object` – rozpoznawaj je przez
+    pd.api.types.is_string_dtype(s), a nie przez `s.dtype == object`.
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
 

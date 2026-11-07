@@ -20,7 +20,8 @@ def eda_summary(df):
     n_rows, n_cols,
     missing – dict {kolumna: liczba braków} tylko dla kolumn z brakami,
     numeric_cols – lista nazw kolumn liczbowych (kolejność jak w df),
-    categorical_cols – lista kolumn tekstowych/kategorii,
+    categorical_cols – lista kolumn tekstowych/kategorii (w pandas 3 tekst to dtype `str`,
+                       nie `object` – użyj pd.api.types.is_string_dtype),
     duplicates – liczba zduplikowanych wierszy.
     """
     raise NotImplementedError('TODO: zaimplementuj tę funkcję')
