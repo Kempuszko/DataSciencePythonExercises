@@ -1,19 +1,60 @@
-{\rtf1\ansi\ansicpg1250\cocoartf2822
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;}
-{\colortbl;\red255\green255\blue255;\red185\green188\blue186;\red69\green83\blue77;}
-{\*\expandedcolortbl;;\cssrgb\c77255\c78431\c77647;\cssrgb\c34118\c39608\c37647\c10196;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\deftab720
-\pard\pardeftab720\partightenfactor0
+# Data Science wspomagane programowanie w Pythonie
 
-\f0\fs28 \cf2 \cb3 \expnd0\expndtw0\kerning0
-# \uc0\u55357 \u56507  \u262 wiczenia Data Science Python\
-\
-**Praktyka dla student\'f3w informatyki**\
-\
-## \uc0\u55357 \u56960  Start\
-```bash\
-git clone [TW\'d3J_LINK]\
-cd DataScience-Exercises\
-conda env create -f environment.yml\
-jupyter lab notebooks/}
+Materiały do kursu dla studentów informatyki: **15 laboratoriów** z analizy danych i data science,
+z naciskiem na dobre praktyki inżynierskie (testy, Git, reprodukowalność) i **odpowiedzialną pracę z asystentem AI** (Copilot).
+
+## Szybki start
+
+```bash
+# 1. Zrób fork tego repo na GitHubie (przycisk "Fork"), potem:
+git clone https://github.com/<TWÓJ_LOGIN>/DataSciencePythonExercises.git
+cd DataSciencePythonExercises
+
+# 2. Środowisko (jednorazowo)
+conda env create -f environment.yml
+conda activate ds-exercises
+
+# 3. Pracuj
+git checkout -b lab01-<TWÓJ_LOGIN>
+mkdir -p submissions/<TWÓJ_LOGIN> && cp -r labs/lab01 submissions/<TWÓJ_LOGIN>/lab01
+jupyter lab submissions/<TWÓJ_LOGIN>/lab01/lab.ipynb
+```
+
+Bez condy: `python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt`.
+
+Oddawanie prac przez Pull Request – opis w [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Zawartość
+
+| Tydzień | Temat | Lab (`labs/`) |
+|---|---|---|
+| 1 | Wprowadzenie, narzędzia, **zasady pracy z AI** | Git/GitHub, Copilot: prompting |
+| 2 | Python dla DS, **weryfikacja kodu od AI** | moving_average, flatten, parsowanie logów |
+| 3 | NumPy | wektoryzacja, broadcasting |
+| 4 | Pandas I | wczytywanie, selekcja, agregacje |
+| 5 | Pandas II | merge, pivot, czas, RFM |
+| 6 | Czyszczenie danych | brudne dane sprzedażowe |
+| 7 | Wizualizacja | matplotlib, uczciwe wykresy |
+| 8 | EDA | mini-projekt: odejścia klientów |
+| 9 | Statystyka | bootstrap, testy, rozmiar efektu |
+| 10 | ML: podstawy | OLS, k-NN, train/test od zera |
+| 11 | Klasyfikacja i metryki | precision/recall, AUC, CV |
+| 12 | Pipeline'y i data leakage | wykrywanie przecieków, Pipeline |
+| 13 | Drzewa, ensemble, interpretacja | Gini, podział, permutation importance |
+| 14 | Wydajność i pamięć | dtypes, chunking, DuckDB |
+| 15 | Projekt końcowy, etyka | projekt + prezentacja |
+
+Pełny sylabus, ocenianie i zasady: [SYLLABUS.md](SYLLABUS.md).
+
+## Struktura repo
+
+```
+labs/labNN/   lab.ipynb (instrukcja) + exercises.py (szablon funkcji do uzupełnienia)
+tests/        testy autogradingu (pytest)
+data/         zbiory danych (syntetyczne, w repo)
+submissions/  tu trafiają Twoje prace: submissions/<login>/labNN/
+scripts/      make_data.py (generator danych), grade.py (autograder)
+```
+
+## Dane
+Wszystkie zbiory są **syntetyczne** (generowane deterministycznie przez `scripts/make_data.py`), więc nie ma problemów z licencją ani prywatnością.

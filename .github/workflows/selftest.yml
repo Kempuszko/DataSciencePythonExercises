@@ -1,0 +1,27 @@
+name: selftest-templates
+
+# Pilnuje, żeby szablony w labs/ ładowały się bez błędów składni oraz żeby dane były spójne.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  templates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Szablony kompilują się
+        run: python -m compileall -q labs tests scripts
+      - name: Szablony NIE przechodzą testów (są puste) – ale testy się ładują
+        run: |
+          python -m pytest tests -q --co

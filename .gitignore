@@ -1,2 +1,11 @@
 .DS_Store
-pycache
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+.venv/
+.snapshots/
+# materiały prowadzącego – NIE publikuj (rozwiązania wzorcowe)
+instructor_private/
+# wykłady zostają lokalnie u prowadzącego
+lectures/
